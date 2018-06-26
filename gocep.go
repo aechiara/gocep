@@ -8,6 +8,8 @@ import "io/ioutil"
 import "strings"
 import "regexp"
 
+import "github.com/bjarneh/latinx"
+
 type SitemapIndex struct {
 	Locations [] string `xml:"sitemap>loc"`
 }
@@ -40,7 +42,10 @@ func main() {
 	//fmt.Println("response Headers:", resp.Header)
 
 	b, _ := ioutil.ReadAll(resp.Body)
-	body := string(b)
+
+	converter := latinx.Get(latinx.ISO_8859_1)
+	c,err := converter.Decode(b)
+	body := string(c)
 
 	//fmt.Println(body)
 
@@ -48,11 +53,11 @@ func main() {
 	output := re.FindString(body)
 	fmt.Println("--------")
 	fmt.Printf("[%q]\n", output)
-	fmt.Println("--------")
 
-	reg, err := regexp.Compile("[^a-zA-Z0-9<>= /]+")
-	processedString := reg.ReplaceAllString(output, "")
-	fmt.Printf("[%q]\n", processedString)
+	reg, err := regexp.Compile("&nbsp;|\\t|\\r|\"")
+	cleanString := reg.ReplaceAllString(output, "")
+	fmt.Println(cleanString)
+	fmt.Println("--------")
 
 
 }
