@@ -1,17 +1,22 @@
 package main
 
-import "fmt"
-import "log"
-import "net/http"
-import "net/url"
-import "io/ioutil"
-import "strings"
-import "regexp"
+import (
+	"fmt"
+    "log"
+	"net/http"
+	"net/url"
+	"io/ioutil"
+	"strings"
+	"regexp"
+	"encoding/json"
+	"github.com/bjarneh/latinx"
+)
 
-import "github.com/bjarneh/latinx"
-
-type SitemapIndex struct {
-	Locations [] string `xml:"sitemap>loc"`
+type CEP struct {
+	Logradouro	string `json:"logradouro"`
+	Bairro		string `json:"bairro"`
+	Localidade	string `json:"localidade"`
+	Cep			string `json:"cep"`
 }
 
 
@@ -25,7 +30,7 @@ func main() {
 	v.Set("semelhante", "N")
 
 	s := v.Encode()
-	fmt.Println("Posting data: " + s)
+	//fmt.Println("Posting data: " + s)
 
 	req, _ := http.NewRequest("POST", cepUrl, strings.NewReader(s))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -51,13 +56,54 @@ func main() {
 
 	re := regexp.MustCompile("(?s)(?m)<table class=\"tmptabela\">(.*?)</table>")
 	output := re.FindString(body)
-	fmt.Println("--------")
-	fmt.Printf("[%q]\n", output)
 
-	reg, err := regexp.Compile("&nbsp;|\\t|\\r|\"")
+	reg, err := regexp.Compile("&nbsp;|\\t|\\r")
 	cleanString := reg.ReplaceAllString(output, "")
-	fmt.Println(cleanString)
-	fmt.Println("--------")
 
+	/*
+	fieldNames := getFieldsName(cleanString)
+	for _, item := range fieldNames {
+		fmt.Println("nome: [", item, "]")
+	}
+	*/
 
+	fieldValues := getFieldsValue(cleanString)
+
+	cep_ret := CEP{fieldValues[0], fieldValues[1], fieldValues[2], fieldValues[3]}
+	json_ret, _ := json.Marshal(cep_ret)
+	fmt.Println(string(json_ret))
+
+}
+
+/*
+func getFieldsName(s string) [] string {
+
+	retorno := make([]string, 0)
+
+	results := regexp.MustCompile(`<th.*?>(.*?):</th>`).FindAllStringSubmatch(s, -1)
+	for i, match := range results {
+		full := match[0]
+		submatches := match[1:len(match)]
+		fmt.Printf("%v => \"%v\" from \"%v\"\n", i, submatches[0], full)
+		retorno = append(retorno, submatches[0])
+	}
+
+	return retorno
+}
+*/
+
+func getFieldsValue(s string) [] string {
+
+	retorno := make([]string, 0)
+
+	results := regexp.MustCompile(`<td.*?>(.*?)</td>`).FindAllStringSubmatch(s, -1)
+	//for i, match := range results {
+	for _, match := range results {
+		//full := match[0]
+		submatches := match[1:len(match)]
+		//fmt.Printf("%v => \"%v\" from \"%v\"\n", i, submatches[0], full)
+		retorno = append(retorno, submatches[0])
+	}
+
+	return retorno
 }
