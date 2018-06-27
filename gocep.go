@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
     "log"
+    "flag"
 	"net/http"
 	"net/url"
 	"io/ioutil"
@@ -21,11 +22,23 @@ type CEP struct {
 
 
 func main() {
+
+	cep := flag.String("c", "", "informe o CEP sem pontos ou hífens")
+
+	flag.Parse()
+
+	if len(*cep) == 0 { 
+		fmt.Println("use a flag -c=cep")
+		return
+	}   
+
+	fmt.Println("Buscando cep[", *cep, "] ...")
+
+
 	cepUrl := "http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaCepEndereco.cfm"
-	var cep = "02242005"
 
 	v := url.Values{}
-	v.Set("relaxation", cep)
+	v.Set("relaxation", *cep)
 	v.Set("tipoCEP", "ALL")
 	v.Set("semelhante", "N")
 
