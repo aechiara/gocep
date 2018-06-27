@@ -1,9 +1,8 @@
-package main
+package gocep
 
 import (
-	"fmt"
+	//"fmt"
     "log"
-    "flag"
 	"net/http"
 	"net/url"
 	"io/ioutil"
@@ -21,24 +20,12 @@ type CEP struct {
 }
 
 
-func main() {
-
-	cep := flag.String("c", "", "informe o CEP sem pontos ou hífens")
-
-	flag.Parse()
-
-	if len(*cep) == 0 { 
-		fmt.Println("use a flag -c=cep")
-		return
-	}   
-
-	fmt.Println("Buscando cep[", *cep, "] ...")
-
+func BuscaCep(cep string) string {
 
 	cepUrl := "http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaCepEndereco.cfm"
 
 	v := url.Values{}
-	v.Set("relaxation", *cep)
+	v.Set("relaxation", cep)
 	v.Set("tipoCEP", "ALL")
 	v.Set("semelhante", "N")
 
@@ -61,19 +48,22 @@ func main() {
 
 	b, _ := ioutil.ReadAll(resp.Body)
 
+	/* convert text to ISO */
 	converter := latinx.Get(latinx.ISO_8859_1)
 	c,err := converter.Decode(b)
 	body := string(c)
 
 	//fmt.Println(body)
 
+	/* capture the part of HTML with the data */
 	re := regexp.MustCompile("(?s)(?m)<table class=\"tmptabela\">(.*?)</table>")
 	output := re.FindString(body)
 
+	/* strip some special chars */
 	reg, err := regexp.Compile("&nbsp;|\\t|\\r")
 	cleanString := reg.ReplaceAllString(output, "")
 
-	/*
+	/* uncoment to grap the field names
 	fieldNames := getFieldsName(cleanString)
 	for _, item := range fieldNames {
 		fmt.Println("nome: [", item, "]")
@@ -84,11 +74,12 @@ func main() {
 
 	cep_ret := CEP{fieldValues[0], fieldValues[1], fieldValues[2], fieldValues[3]}
 	json_ret, _ := json.Marshal(cep_ret)
-	fmt.Println(string(json_ret))
+	//fmt.Println(string(json_ret))
 
+	return string(json_ret)
 }
 
-/*
+/* uncoment to grab field Names
 func getFieldsName(s string) [] string {
 
 	retorno := make([]string, 0)
@@ -105,7 +96,8 @@ func getFieldsName(s string) [] string {
 }
 */
 
-func getFieldsValue(s string) [] string {
+/* private function to deal with the string and grab the data */
+func getFieldsValue(s string) []string {
 
 	retorno := make([]string, 0)
 
