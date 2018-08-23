@@ -20,7 +20,7 @@ type CEP struct {
 }
 
 
-func BuscaCep(cep string) string {
+func BuscaCep(cep string) (string, CEP) {
 
 	cepUrl := "http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaCepEndereco.cfm"
 
@@ -63,38 +63,31 @@ func BuscaCep(cep string) string {
 	reg, err := regexp.Compile("&nbsp;|\\t|\\r")
 	cleanString := reg.ReplaceAllString(output, "")
 
-	/* uncoment to grap the field names
-	fieldNames := getFieldsName(cleanString)
-	for _, item := range fieldNames {
-		fmt.Println("nome: [", item, "]")
-	}
-	*/
-
 	fieldValues := getFieldsValue(cleanString)
 
 	cep_ret := CEP{fieldValues[0], fieldValues[1], fieldValues[2], fieldValues[3]}
 	json_ret, _ := json.Marshal(cep_ret)
 	//fmt.Println(string(json_ret))
 
-	return string(json_ret)
+	return string(json_ret), cep_ret
 }
 
-/* uncoment to grab field Names
+/* grab field Names */
 func getFieldsName(s string) [] string {
 
 	retorno := make([]string, 0)
 
 	results := regexp.MustCompile(`<th.*?>(.*?):</th>`).FindAllStringSubmatch(s, -1)
-	for i, match := range results {
-		full := match[0]
+	//for i, match := range results {
+	for _, match := range results {
+		//full := match[0]
 		submatches := match[1:len(match)]
-		fmt.Printf("%v => \"%v\" from \"%v\"\n", i, submatches[0], full)
+		//fmt.Printf("%v => \"%v\" from \"%v\"\n", i, submatches[0], full)
 		retorno = append(retorno, submatches[0])
 	}
 
 	return retorno
 }
-*/
 
 /* private function to deal with the string and grab the data */
 func getFieldsValue(s string) []string {
