@@ -2,23 +2,23 @@ package gocep
 
 import (
 	//"fmt"
-    "log"
+	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
-	"io/ioutil"
-	"strings"
 	"regexp"
-	"encoding/json"
+	"strings"
+
 	"github.com/bjarneh/latinx"
 )
 
 type CEP struct {
-	Logradouro	string `json:"logradouro"`
-	Bairro		string `json:"bairro"`
-	Localidade	string `json:"localidade"`
-	Cep			string `json:"cep"`
+	Logradouro string `json:"logradouro"`
+	Bairro     string `json:"bairro"`
+	Localidade string `json:"localidade"`
+	Cep        string `json:"cep"`
 }
-
 
 func BuscaCep(cep string) (string, CEP) {
 
@@ -50,7 +50,7 @@ func BuscaCep(cep string) (string, CEP) {
 
 	/* convert text to ISO */
 	converter := latinx.Get(latinx.ISO_8859_1)
-	c,err := converter.Decode(b)
+	c, err := converter.Decode(b)
 	body := string(c)
 
 	//fmt.Println(body)
@@ -73,7 +73,7 @@ func BuscaCep(cep string) (string, CEP) {
 }
 
 /* grab field Names */
-func getFieldsName(s string) [] string {
+func getFieldsName(s string) []string {
 
 	retorno := make([]string, 0)
 
