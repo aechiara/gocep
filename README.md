@@ -7,4 +7,4 @@
 ### Use:
  import "github.com/aechiara/gocep"
 
- s := gocep.BuscaCep("01310000")
+ string_cep, struct_cep := gocep.BuscaCep("01310000")
