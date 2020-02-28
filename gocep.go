@@ -2,17 +2,21 @@ package gocep
 
 import (
 	//"fmt"
+
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/bjarneh/latinx"
 )
 
+// CEP representa os dados do Logradouro
 type CEP struct {
 	Logradouro string `json:"logradouro"`
 	Bairro     string `json:"bairro"`
@@ -20,9 +24,25 @@ type CEP struct {
 	Cep        string `json:"cep"`
 }
 
-func BuscaCep(cep string) (string, CEP) {
+// ToJSON return CEP struct as Json
+func (c *CEP) ToJSON() (string, error) {
+	jsonRet, err := json.Marshal(c)
+	return string(jsonRet), err
+}
 
-	cepUrl := "http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaCepEndereco.cfm"
+// BuscaCep consulta o CEP informado no site dos correios
+func BuscaCep(cep string) (CEP, error) {
+
+	if len(cep) != 8 {
+		return CEP{}, errors.New("O CEP DEVE ter 8 digitos")
+	}
+
+	_, errorAtoi := strconv.Atoi(cep)
+	if errorAtoi != nil {
+		return CEP{}, errors.New("O CEP DEVE ser apenas digitos")
+	}
+
+	const cepURL = "http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaCepEndereco.cfm"
 
 	v := url.Values{}
 	v.Set("relaxation", cep)
@@ -32,7 +52,7 @@ func BuscaCep(cep string) (string, CEP) {
 	s := v.Encode()
 	//fmt.Println("Posting data: " + s)
 
-	req, _ := http.NewRequest("POST", cepUrl, strings.NewReader(s))
+	req, _ := http.NewRequest("POST", cepURL, strings.NewReader(s))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	client := &http.Client{}
@@ -59,17 +79,27 @@ func BuscaCep(cep string) (string, CEP) {
 	re := regexp.MustCompile("(?s)(?m)<table class=\"tmptabela\">(.*?)</table>")
 	output := re.FindString(body)
 
+	if len(output) == 0 {
+		return CEP{}, errors.New("DADOS NAO ENCONTRADOS")
+	}
+
 	/* strip some special chars */
 	reg, err := regexp.Compile("&nbsp;|\\t|\\r")
 	cleanString := reg.ReplaceAllString(output, "")
 
 	fieldValues := getFieldsValue(cleanString)
 
-	cep_ret := CEP{fieldValues[0], fieldValues[1], fieldValues[2], fieldValues[3]}
-	json_ret, _ := json.Marshal(cep_ret)
+	cepRet := CEP{
+		Logradouro: fieldValues[0],
+		Bairro:     fieldValues[1],
+		Localidade: fieldValues[2],
+		Cep:        fieldValues[3]}
+
+	// jsonRet, err := json.Marshal(cepRet)
 	//fmt.Println(string(json_ret))
 
-	return string(json_ret), cep_ret
+	// return string(jsonRet), err
+	return cepRet, nil
 }
 
 /* grab field Names */
