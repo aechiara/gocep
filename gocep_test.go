@@ -11,14 +11,14 @@ func TestBuscaCep(t *testing.T) {
 	// 	"localidade":"São Paulo/SP",
 	// 	"cep":"01310-000"
 	// 	}`
-	expectedCep := CEP{
+	expectedCep := &CEP{
 		Logradouro: "Avenida Paulista - até 610 - lado par",
 		Bairro:     "Bela Vista",
 		Localidade: "São Paulo/SP",
 		Cep:        "01310-000",
 	}
 	actualCep, _ := BuscaCep("01310000")
-	if actualCep != expectedCep {
+	if *actualCep != *expectedCep {
 		t.Errorf("Error getting CEP, got: %v, want: %v.", actualCep, expectedCep)
 	}
 }

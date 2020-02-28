@@ -31,15 +31,15 @@ func (c *CEP) ToJSON() (string, error) {
 }
 
 // BuscaCep consulta o CEP informado no site dos correios
-func BuscaCep(cep string) (CEP, error) {
+func BuscaCep(cep string) (*CEP, error) {
 
 	if len(cep) != 8 {
-		return CEP{}, errors.New("O CEP DEVE ter 8 digitos")
+		return nil, errors.New("O CEP DEVE ter 8 digitos")
 	}
 
 	_, errorAtoi := strconv.Atoi(cep)
 	if errorAtoi != nil {
-		return CEP{}, errors.New("O CEP DEVE ser apenas digitos")
+		return nil, errors.New("O CEP DEVE ser apenas digitos")
 	}
 
 	const cepURL = "http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaCepEndereco.cfm"
@@ -80,7 +80,7 @@ func BuscaCep(cep string) (CEP, error) {
 	output := re.FindString(body)
 
 	if len(output) == 0 {
-		return CEP{}, errors.New("DADOS NAO ENCONTRADOS")
+		return nil, errors.New("DADOS NAO ENCONTRADOS")
 	}
 
 	/* strip some special chars */
@@ -99,7 +99,7 @@ func BuscaCep(cep string) (CEP, error) {
 	//fmt.Println(string(json_ret))
 
 	// return string(jsonRet), err
-	return cepRet, nil
+	return &cepRet, nil
 }
 
 /* grab field Names */
