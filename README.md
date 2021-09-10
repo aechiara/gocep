@@ -2,9 +2,20 @@
  Bibiloteca para buscar endereço a partir de um CEP no site dos Correios em Golang
 
  ### Install
- $ go getl github.com/aechiara/gocep
+```sh
+ $ go get github.com/aechiara/gocep
+```
 
 ### Use:
- import "github.com/aechiara/gocep"
+ ```go
+package something 
 
- string_cep, struct_cep := gocep.BuscaCep("01310000")
+import (
+    "github.com/aechiara/gocep"
+ )
+
+func Something(cep string) {
+    structCep, err := gocep.BuscaCep("01310000")
+    jsonCep, err = stringCep.ToJSON()
+}
+```

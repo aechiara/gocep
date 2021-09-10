@@ -37,9 +37,9 @@ func BuscaCep(cep string) (*CEP, error) {
 		return nil, errors.New("O CEP DEVE ter 8 digitos")
 	}
 
-	_, errorAtoi := strconv.Atoi(cep)
-	if errorAtoi != nil {
-		return nil, errors.New("O CEP DEVE ser apenas digitos")
+	_, err := strconv.Atoi(cep)
+	if err != nil {
+		return nil, errors.New("O CEP DEVE conter apenas dígitos")
 	}
 
 	const cepURL = "http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaCepEndereco.cfm"
@@ -52,7 +52,10 @@ func BuscaCep(cep string) (*CEP, error) {
 	s := v.Encode()
 	//fmt.Println("Posting data: " + s)
 
-	req, _ := http.NewRequest("POST", cepURL, strings.NewReader(s))
+	req, err := http.NewRequest("POST", cepURL, strings.NewReader(s))
+	if err != nil {
+		return nil, errors.New("Erro criando Requisição: " + err.Error())
+	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	client := &http.Client{}
@@ -71,6 +74,9 @@ func BuscaCep(cep string) (*CEP, error) {
 	/* convert text to ISO */
 	converter := latinx.Get(latinx.ISO_8859_1)
 	c, err := converter.Decode(b)
+	if err != nil {
+		return nil, errors.New("Erro durante o Decode da resposta: " + err.Error())
+	}
 	body := string(c)
 
 	//fmt.Println(body)
@@ -84,7 +90,7 @@ func BuscaCep(cep string) (*CEP, error) {
 	}
 
 	/* strip some special chars */
-	reg, err := regexp.Compile("&nbsp;|\\t|\\r")
+	reg, _ := regexp.Compile("&nbsp;|\\t|\\r")
 	cleanString := reg.ReplaceAllString(output, "")
 
 	fieldValues := getFieldsValue(cleanString)
