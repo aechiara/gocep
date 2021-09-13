@@ -1,8 +1,6 @@
 package gocep
 
 import (
-	//"fmt"
-
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -50,7 +48,7 @@ func BuscaCep(cep string) (*CEP, error) {
 	v.Set("semelhante", "N")
 
 	s := v.Encode()
-	//fmt.Println("Posting data: " + s)
+	//log.Println("Posting data: " + s)
 
 	req, err := http.NewRequest("POST", cepURL, strings.NewReader(s))
 	if err != nil {
@@ -66,8 +64,8 @@ func BuscaCep(cep string) (*CEP, error) {
 	}
 	defer resp.Body.Close()
 
-	//fmt.Println("response Status:", resp.Status)
-	//fmt.Println("response Headers:", resp.Header)
+	log.Println("response Status:", resp.Status)
+	log.Println("response Headers:", resp.Header)
 
 	b, _ := ioutil.ReadAll(resp.Body)
 
@@ -79,7 +77,7 @@ func BuscaCep(cep string) (*CEP, error) {
 	}
 	body := string(c)
 
-	//fmt.Println(body)
+	//log.Println(body)
 
 	/* capture the part of HTML with the data */
 	re := regexp.MustCompile("(?s)(?m)<table class=\"tmptabela\">(.*?)</table>")
@@ -101,10 +99,6 @@ func BuscaCep(cep string) (*CEP, error) {
 		Localidade: fieldValues[2],
 		Cep:        fieldValues[3]}
 
-	// jsonRet, err := json.Marshal(cepRet)
-	//fmt.Println(string(json_ret))
-
-	// return string(jsonRet), err
 	return &cepRet, nil
 }
 
@@ -114,12 +108,10 @@ func getFieldsName(s string) []string {
 	retorno := make([]string, 0)
 
 	results := regexp.MustCompile(`<th.*?>(.*?):</th>`).FindAllStringSubmatch(s, -1)
-	//for i, match := range results {
-	for _, match := range results {
-		//full := match[0]
-		submatches := match[1:len(match)]
-		//fmt.Printf("%v => \"%v\" from \"%v\"\n", i, submatches[0], full)
-		retorno = append(retorno, submatches[0])
+	for idx, match := range results {
+		subMatches := match[1:len(match)]
+		log.Printf("idx %v => \"%v\" from \"%v\"\n", idx, subMatches[0], match[0])
+		retorno = append(retorno, subMatches[0])
 	}
 
 	return retorno
@@ -131,12 +123,10 @@ func getFieldsValue(s string) []string {
 	retorno := make([]string, 0)
 
 	results := regexp.MustCompile(`<td.*?>(.*?)</td>`).FindAllStringSubmatch(s, -1)
-	//for i, match := range results {
-	for _, match := range results {
-		//full := match[0]
-		submatches := match[1:len(match)]
-		//fmt.Printf("%v => \"%v\" from \"%v\"\n", i, submatches[0], full)
-		retorno = append(retorno, submatches[0])
+	for idx, match := range results {
+		subMatches := match[1:len(match)]
+		log.Printf("idx %v => \"%v\" from \"%v\"\n", idx, subMatches[0], match[0])
+		retorno = append(retorno, subMatches[0])
 	}
 
 	return retorno
