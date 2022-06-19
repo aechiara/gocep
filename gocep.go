@@ -56,8 +56,8 @@ func (c *CEP) ToJSON() (string, error) {
 	return string(jsonRet), err
 }
 
-// BuscaCep consulta o CEP informado no site dos correios
-func BuscaCep(cep string) (*CEP, error) {
+// Buscar consulta o CEP informado no site dos correios
+func Buscar(cep string) (*CEP, error) {
 
 	if len(cep) != 8 {
 		return nil, errors.New("O CEP DEVE ter 8 digitos")
