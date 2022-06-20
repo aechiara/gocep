@@ -15,7 +15,7 @@ import (
  )
 
 func Something(cep string) {
-    structCep, err := gocep.BuscaCep("01310000")
+    structCep, err := gocep.Buscar("01310000")
     jsonCep, err = stringCep.ToJSON()
 }
 ```
