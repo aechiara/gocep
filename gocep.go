@@ -3,12 +3,12 @@ package gocep
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/bjarneh/latinx"
 )
@@ -63,8 +63,7 @@ func Buscar(cep string) (*CEP, error) {
 		return nil, errors.New("O CEP DEVE ter 8 digitos")
 	}
 
-	_, err := strconv.Atoi(cep)
-	if err != nil {
+	if !isStringOnlyDigits(cep) {
 		return nil, errors.New("O CEP DEVE conter apenas dígitos")
 	}
 
@@ -95,7 +94,8 @@ func Buscar(cep string) (*CEP, error) {
 	//log.Println("response Status:", resp.Status)
 	//log.Println("response Headers:", resp.Header)
 
-	b, _ := ioutil.ReadAll(resp.Body)
+	//b, _ := ioutil.ReadAll(resp.Body)
+	b, _ := io.ReadAll(resp.Body)
 
 	/* convert text to ISO */
 	converter := latinx.Get(latinx.ISO_8859_1)
@@ -126,4 +126,13 @@ func Buscar(cep string) (*CEP, error) {
 		Localidade: jsonResponse.Dados[0].Localidade,
 	}
 	return &r, nil
+}
+
+func isStringOnlyDigits(str string) bool {
+	for _, r := range str {
+		if !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return true
 }
