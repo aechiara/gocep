@@ -12,6 +12,7 @@ func TestCEPRunner(t *testing.T) {
 			Bairro:     "Bela Vista",
 			Localidade: "São Paulo",
 			Cep:        "01310-000",
+			UF:         "SP",
 		}
 		actualCep, _ := gocep.Buscar("01310000")
 		if expectedCep.Logradouro != actualCep.Logradouro &&

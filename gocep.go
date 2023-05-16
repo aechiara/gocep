@@ -19,6 +19,7 @@ type CEP struct {
 	Bairro     string `json:"bairro"`
 	Localidade string `json:"localidade"`
 	Cep        string `json:"cep"`
+	UF         string `json:"uf"`
 }
 
 type cepResponse struct {
@@ -124,6 +125,7 @@ func Buscar(cep string) (*CEP, error) {
 		Cep:        cep,
 		Bairro:     jsonResponse.Dados[0].Bairro,
 		Localidade: jsonResponse.Dados[0].Localidade,
+		UF:         jsonResponse.Dados[0].Uf,
 	}
 	return &r, nil
 }
