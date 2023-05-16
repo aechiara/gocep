@@ -3,7 +3,7 @@
 
  ### Install
 ```sh
- $ go get github.com/aechiara/gocep
+ go get github.com/aechiara/gocep
 ```
 
 ### Use:
@@ -14,8 +14,13 @@ import (
     "github.com/aechiara/gocep"
  )
 
-func Something(cep string) {
-    structCep, err := gocep.Buscar("01310000")
-    jsonCep, err = stringCep.ToJSON()
+func Something(cep string) (string, error) {
+    structCep, err := gocep.Buscar(cep)
+	if err != nil {
+		//...
+    }
+    jsonCep, err := structCep.ToJSON()
+	
+	return jsonCep, nil
 }
 ```
