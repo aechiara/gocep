@@ -48,7 +48,7 @@ type cepResponse struct {
 }
 
 const (
-	cepURL = "https://buscacepinter.correios.com.br/app/endereco/carrega-cep-endereco.php"
+	cepURL = "https://buscacepinter.correios.com.br/app/consulta/html/consulta-detalhes-cep.php"
 )
 
 // ToJSON return CEP struct as Json
@@ -69,6 +69,7 @@ func Buscar(cep string) (*CEP, error) {
 	}
 
 	v := url.Values{}
+	v.Set("cep", cep)
 	v.Set("endereco", cep)
 	v.Set("tipoCEP", "ALL")
 	v.Set("cepaux", "")
