@@ -3,14 +3,14 @@ package gocep
 import (
 	"encoding/json"
 	"errors"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"unicode"
-
-	"github.com/bjarneh/latinx"
 )
 
 // CEP representa os dados do Logradouro
@@ -91,28 +91,28 @@ func Buscar(cep string) (*CEP, error) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Println("Erro fechando o reader do Body")
+		}
+	}(resp.Body)
 
 	//log.Println("response Status:", resp.Status)
 	//log.Println("response Headers:", resp.Header)
 
-	//b, _ := ioutil.ReadAll(resp.Body)
-	b, _ := io.ReadAll(resp.Body)
+	///* convert text to ISO */
+	reader := transform.NewReader(resp.Body, charmap.ISO8859_1.NewDecoder())
 
-	/* convert text to ISO */
-	converter := latinx.Get(latinx.ISO_8859_1)
-	c, err := converter.Decode(b)
+	b, err := io.ReadAll(reader)
+
 	if err != nil {
-		c = b
 		return nil, errors.New("Erro durante o Decode da resposta: " + err.Error())
 	}
-	//body := string(c)
-
-	//log.Println(body)
 
 	// bind to JSON
 	jsonResponse := new(cepResponse)
-	err = json.Unmarshal(c, jsonResponse)
+	err = json.Unmarshal(b, jsonResponse)
 	if err != nil {
 		return nil, errors.New("Erro unmarshalling response: " + err.Error())
 	}
