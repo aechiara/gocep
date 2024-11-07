@@ -6,6 +6,28 @@ import (
 )
 
 func TestCEPRunner(t *testing.T) {
+	t.Run("cep deve ter apenas digitos", func(t *testing.T) {
+		_, err := gocep.Buscar("123asd45")
+		if err == nil {
+			t.Errorf("Shoud return error, got nil")
+		}
+	})
+
+	t.Run("cep deve ter tamanho 8", func(t *testing.T) {
+		_, err := gocep.Buscar("234")
+		if err == nil {
+			t.Errorf("Shoud return error, got nil")
+		}
+	})
+
+	t.Run("cep nao existe", func(t *testing.T) {
+		actualCep, err := gocep.Buscar("00000000")
+
+		if err == nil {
+			t.Errorf("Should return nil, got: %v", actualCep)
+		}
+	})
+
 	t.Run("busca cep", func(t *testing.T) {
 		expectedCep := &gocep.CEP{
 			Logradouro: "Avenida Paulista - até 610 - lado par",
@@ -36,25 +58,4 @@ func TestCEPRunner(t *testing.T) {
 		}
 	})
 
-	t.Run("cep nao exisite", func(t *testing.T) {
-		actualCep, err := gocep.Buscar("00000000")
-
-		if err == nil {
-			t.Errorf("Should return nil, got: %v", actualCep)
-		}
-	})
-
-	t.Run("cep deve ter apenas digitos", func(t *testing.T) {
-		_, err := gocep.Buscar("123asd45")
-		if err == nil {
-			t.Errorf("Shoud return error, got nil")
-		}
-	})
-
-	t.Run("cep deve ter tamanho 8", func(t *testing.T) {
-		_, err := gocep.Buscar("234")
-		if err == nil {
-			t.Errorf("Shoud return error, got nil")
-		}
-	})
 }

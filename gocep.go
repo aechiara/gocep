@@ -84,6 +84,8 @@ func Buscar(cep string) (*CEP, error) {
 		return nil, errors.New("Erro criando Requisição: " + err.Error())
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	// header simulating mozilla firefox
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
