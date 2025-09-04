@@ -47,7 +47,7 @@ type cepResponse struct {
 	} `json:"dados"`
 }
 
-const (
+var (
 	cepURL = "https://buscacepinter.correios.com.br/app/consulta/html/consulta-detalhes-cep.php"
 )
 
@@ -91,7 +91,7 @@ func Buscar(cep string) (*CEP, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, errors.New("Erro ao fazer a requisição: " + err.Error())
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -116,7 +116,7 @@ func Buscar(cep string) (*CEP, error) {
 	jsonResponse := new(cepResponse)
 	err = json.Unmarshal(b, jsonResponse)
 	if err != nil {
-		return nil, errors.New("Erro unmarshalling response: " + err.Error())
+		return nil, errors.New("Erro ao decodificar a resposta: " + err.Error())
 	}
 
 	if jsonResponse.Total == 0 {
@@ -140,4 +140,14 @@ func isStringOnlyDigits(str string) bool {
 		}
 	}
 	return true
+}
+
+// GetCepURL retorna a cepURL atual.
+func GetCepURL() string {
+	return cepURL
+}
+
+// SetCepURL define a cepURL.
+func SetCepURL(url string) {
+	cepURL = url
 }
