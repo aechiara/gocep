@@ -24,3 +24,14 @@ func Something(cep string) (string, error) {
 	return jsonCep, nil
 }
 ```
+
+### Testes
+Para rodar os testes unitários, use o comando padrão `go test`:
+```sh
+go test -v ./...
+```
+
+Para rodar os testes de integração, que fazem requisições reais para a API dos Correios, use a build tag `integration`:
+```sh
+go test -v -tags=integration ./...
+```
